@@ -6,7 +6,7 @@ import { AnimatedRoutes } from '@/components/AnimatedRoutes'
 
 createRoot(document.getElementById('root')!).render(
   <StrictMode>
-    <BrowserRouter>
+    <BrowserRouter basename="/split-bill-app">
       <AnimatedRoutes />
     </BrowserRouter>
   </StrictMode>,
