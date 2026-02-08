@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useRef, useState } from "react";
 import {
   useLocation,
   useNavigationType,
@@ -15,6 +15,7 @@ export function AnimatedRoutes() {
   const navigationType = useNavigationType();
   const [prevPathname, setPrevPathname] = useState(location.pathname);
   const [direction, setDirection] = useState(0);
+  const containerRef = useRef<HTMLDivElement>(null);
 
   if (prevPathname !== location.pathname) {
     setPrevPathname(location.pathname);
@@ -22,10 +23,16 @@ export function AnimatedRoutes() {
   }
 
   return (
-    <AnimatePresence mode="wait" custom={direction}>
+    <AnimatePresence
+      mode="wait"
+      custom={direction}
+      onExitComplete={() => window.scrollTo(0, 0)}
+    >
       <motion.div
+        ref={containerRef}
         key={location.pathname}
         custom={direction}
+        style={{ minHeight: "100dvh" }}
         variants={{
           enter: (d: number) => ({
             x: d === 0 ? 0 : `${d * 30}%`,
@@ -47,6 +54,12 @@ export function AnimatedRoutes() {
           type: "tween",
           ease: [0.25, 0.1, 0.25, 1],
           duration: 0.25,
+        }}
+        onAnimationComplete={() => {
+          // Remove transform so position:fixed works correctly in resting state
+          if (containerRef.current) {
+            containerRef.current.style.transform = "none";
+          }
         }}
       >
         <Routes location={location}>

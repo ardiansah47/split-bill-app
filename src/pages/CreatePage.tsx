@@ -1,7 +1,8 @@
-import { useState, useCallback, useEffect } from "react";
+import { useState, useCallback, useEffect, useRef } from "react";
 import { useNavigate } from "react-router-dom";
 import { Plus, Calculator, ArrowLeft, Store } from "lucide-react";
 import { AnimatePresence, motion } from "motion/react";
+import { toast } from "sonner";
 import type { BillItem, SharedCosts } from "@/types";
 import { calculateSplit } from "@/utils/calculate";
 import { saveCalculation } from "@/utils/storage";
@@ -30,8 +31,6 @@ export function CreatePage() {
     miscCost: 0,
     shippingCost: 0,
   });
-  const [errors, setErrors] = useState<string[]>([]);
-
   useEffect(() => {
     document.title = "New Split Bill - Split Bill Calculator";
   }, []);
@@ -47,9 +46,23 @@ export function CreatePage() {
     [],
   );
 
+  const scrollToNewItem = useRef(false);
+
   const handleAddItem = useCallback(() => {
-    setItems((prev) => [...prev, createEmptyItem()]);
+    const newItem = createEmptyItem();
+    setItems((prev) => [...prev, newItem]);
+    scrollToNewItem.current = true;
   }, []);
+
+  useEffect(() => {
+    if (scrollToNewItem.current) {
+      scrollToNewItem.current = false;
+      const lastId = items[items.length - 1]?.id;
+      if (lastId) {
+        document.getElementById(`item-${lastId}`)?.scrollIntoView({ behavior: "smooth", block: "center" });
+      }
+    }
+  }, [items]);
 
   const handleRemoveItem = useCallback((id: string) => {
     setItems((prev) => prev.filter((item) => item.id !== id));
@@ -96,8 +109,10 @@ export function CreatePage() {
 
   const handleCalculate = () => {
     const validationErrors = validate();
-    setErrors(validationErrors);
-    if (validationErrors.length > 0) return;
+    if (validationErrors.length > 0) {
+      toast.error(validationErrors[0]);
+      return;
+    }
 
     const result = calculateSplit(items, sharedCosts);
 
@@ -182,7 +197,7 @@ export function CreatePage() {
           <Button
             variant="outline"
             onClick={handleAddItem}
-            className="mt-3 w-full h-9 border-dashed border-2 text-muted-foreground text-primary border-primary bg-primary-light/30"
+            className="mt-3 w-full h-9 border-dashed border-2 text-primary border-primary bg-primary-light/30 hover:text-primary"
           >
             <Plus size={16} />
             Add Item
@@ -202,34 +217,18 @@ export function CreatePage() {
           <SummaryCard items={items} sharedCosts={sharedCosts} />
         </section>
 
-        {/* Validation Errors */}
-        {errors.length > 0 && (
-          <div className="animate-fade-in-up bg-danger-light border border-destructive/20 rounded-xl p-4">
-            <p className="text-xs font-semibold text-destructive mb-2">
-              Please fix the following:
-            </p>
-            <ul className="space-y-1.5">
-              {errors.map((err, i) => (
-                <li key={i} className="text-xs text-destructive/80 flex gap-2">
-                  <span className="mt-0.5">&bull;</span>
-                  {err}
-                </li>
-              ))}
-            </ul>
-          </div>
-        )}
       </main>
 
       {/* Bottom Action Bar */}
       <motion.div
         className="fixed bottom-0 left-0 right-0 z-30"
-        initial={{ y: "100%" }}
-        animate={{ y: 0 }}
+        initial={{ y: "100%", opacity: 0 }}
+        animate={{ y: 0, opacity: 1 }}
         transition={{
           type: "spring",
           stiffness: 300,
           damping: 30,
-          delay: 0.25,
+          delay: 0.5,
         }}
       >
         <div className="max-w-lg mx-auto">

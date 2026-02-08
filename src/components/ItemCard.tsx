@@ -20,6 +20,7 @@ export function ItemCard({ item, index, onChange, onRemove, canRemove }: ItemCar
 
   return (
     <motion.div
+      id={`item-${item.id}`}
       layout
       initial={{ opacity: 0, y: 16 }}
       animate={{ opacity: 1, y: 0 }}

@@ -3,6 +3,7 @@ import { createRoot } from 'react-dom/client'
 import { BrowserRouter } from 'react-router-dom'
 import './index.css'
 import { AnimatedRoutes } from '@/components/AnimatedRoutes'
+import { Toaster } from '@/components/ui/sonner'
 
 // Dismiss splash screen after React mounts
 function dismissSplash() {
@@ -17,6 +18,7 @@ createRoot(document.getElementById('root')!).render(
   <StrictMode>
     <BrowserRouter basename="/split-bill-app">
       <AnimatedRoutes />
+      <Toaster position="top-center" richColors />
     </BrowserRouter>
   </StrictMode>,
 )

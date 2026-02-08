@@ -331,13 +331,13 @@ export function ResultsPage({
       {/* Bottom Action Bar */}
       <motion.div
         className="fixed bottom-0 left-0 right-0 z-30"
-        initial={{ y: "100%" }}
-        animate={{ y: 0 }}
+        initial={{ y: "100%", opacity: 0 }}
+        animate={{ y: 0, opacity: 1 }}
         transition={{
           type: "spring",
           stiffness: 300,
           damping: 30,
-          delay: 0.25,
+          delay: 0.5,
         }}
       >
         <div className="max-w-lg mx-auto">
